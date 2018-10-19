@@ -19,7 +19,7 @@ D=M
 D=M //D=i
 
 @R1
-D= R1-i
+D=D-A //D=i-R1
 @END 
 D;JGT //if R1>i goto END
 
