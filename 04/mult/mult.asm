@@ -8,29 +8,27 @@
 
 // Put your code here.
 
-@i //counter
-M=0
-
-@R1 //given input
+@R1
 D=M
+@counter
+M=D
 
 (LOOP)
-@i
-D=M //D=i
-
-@R1
-D=D-A //D=i-R1
-@END 
-D;JGT //if R1>i goto END
-
-@R0  //given new input
-D=D+M //D= R1 + R0
-
-@i
-M=M+1 //increase counter
+@counter
+D=M
+@EXIT
+D;JEQ
+@R2
+D=M
+@R0
+D=D+M
+@R2
+M=D
+@counter
+M=M-1
 @LOOP
-0;JMP //goto loop
+0;JMP
 
-(END)
-@END
+(EXIT)
+@EXIT
 0;JMP
