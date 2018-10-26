@@ -1,0 +1,39 @@
+//Keyboard functionality
+//variable definition
+
+
+@SCREEN
+D=A
+@addr
+M=D //addr= 16384
+
+(LOOP)
+//if n=0, go to COND1
+@KBD
+D=M
+@COND1
+D; JEQ
+
+//if n!=0, go to COND2
+@KBD
+D=M
+@COND2
+D; JNE
+
+(COND1)
+//if n=0, screen is white
+@addr
+A=M
+M=0
+@LOOP
+
+(COND2)
+//if n!=0, screen is black
+@addr
+A=M
+M=-1
+@LOOP
+
+
+//@END
+//0;JMP
