@@ -46,9 +46,11 @@ CHIP CPU {
     SOMETHING (in=instruction, out=LOAD);
 
     //instruction
-    Mux16(a=instruction[15], b=ALU OUTPUT, sel=LOAD, out=out1); 
+    Mux16(a=instruction, b=ALU OUTPUT, sel=instruction[15], out=out1); 
+    //outputs addressM somewhere
 
     //Output goes to A register, uses a load 
+    //load is picking between what??
     Aregister(in= out1, load=LOAD, out=out2); 
 
     //inM
