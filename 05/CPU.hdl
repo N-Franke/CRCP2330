@@ -72,18 +72,32 @@ CHIP CPU {
    DRegister(in=out5, load=outD, out=out4);
 
 
-     //ALU--AHHH HELP FILL
-    ALU (x=out3 ,y=out4 ,zx= ,nx= ,zy= ,ny= ,f= ,no= ,out=out5, out=outM,zr= ,ng= ); 
-    //outputs 3: ALU output, outM, and a load
-
-
+     //ALU
+    ALU (x=out4 , y=out3,
+    zx=instruction[11],
+    nx=instruction[10],
+    zy=instruction[9],
+    ny=instruction[8],
+    f=instruction[7],
+    no=instruction[6],
+    out=out5, out=outM,
+    zr=outZR,
+    ng=outNG);
 
     //writeM
-    //load that writes to the program
+    And(a=instruction[15], b=instruction[3], out=writeM);
 
     //reset
-    //uses reset
-    //no increase
-    //uses a load
-    PC (in=out2 ,load= ,inc= ,reset= ,out=pc[15]); 
+   	Not(in=outZR, out=notZR);
+   	Not(in=outNG, out=pos);
+
+   	And(a=instruction[15], b=instruction[0], out=JGT);
+   	And(a=pos, b=notZR, out=posNotZR);
+
+   	And(a=instruction[15], b=instruction[1], out=JEQ);
+   	And(a=JEQ, b=outZR, out=out7);
+
+   	//Or(a=);
+   	//Or();
+    PC (in=out2 ,load= ,inc=true,reset=reset ,out[0..14=pc); 
 }
