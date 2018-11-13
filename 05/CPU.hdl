@@ -41,14 +41,38 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
+    //decode instruction
+    //HELP?!?!?!
+    SOMETHING (in=instruction, out=LOAD);
+
     //instruction
-    Mux16(a=instruction[15], b=ALU OUTPUT, sel=instruction[0], out=out1); 
+    Mux16(a=instruction[15], b=ALU OUTPUT, sel=LOAD, out=out1); 
+
     //Output goes to A register, uses a load 
     Aregister(in= out1, load=LOAD, out=out2); 
 
+    //inM
+    //picks between A register or M register
+    //0=Aregister, 1=Mregister
+    Mux16(a=out1, b=inM, sel=LOAD, out=out3);
+    //out3 is either A or M
+
+    //ALU--AHHH HELP FILL
+    ALU (x=out3 ,y=out4 ,zx= ,nx= ,zy= ,ny= ,f= ,no= ,out= ,zr= ,ng= ); 
+    //outputs 3: ALU output, outM, and a load
+
+    //D register
+    input: ALU output
+    uses a load
+    output: out4
 
 
+    //writeM
+    //load that writes to the program
 
-
-    // Put your code here:
+    //reset
+    //uses reset
+    //no increase
+    //uses a load
+    PC (in=out2 ,load= ,inc= ,reset= ,out=pc[15]); 
 }
