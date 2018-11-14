@@ -67,9 +67,9 @@ CHIP CPU {
     //out3 is either A D or M
 
     //D register
-   // uses a load
-   And(a=intsruction[15], b=instruction[4], out=outD);
-   DRegister(in=out5, load=outD, out=out4);
+   	// uses a load
+    And(a=intsruction[15], b=instruction[4], out=outD);
+    DRegister(in=out5, load=outD, out=out4);
 
 
      //ALU
@@ -93,6 +93,7 @@ CHIP CPU {
 
    	And(a=instruction[15], b=instruction[0], out=JGT);
    	And(a=pos, b=notZR, out=posNotZR);
+   	//And()
 
    	And(a=instruction[15], b=instruction[1], out=JEQ);
    	And(a=JEQ, b=outZR, out=out7);

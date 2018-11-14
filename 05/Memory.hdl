@@ -27,10 +27,18 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
+    //tell the memory where the in value will go
+    DMux4Way(in=load, sel=address[13..14], a=out1, b=out2, c=screen, d=keyboard);
+
     //RAM
-    RAM16K(in=in, load=, address=, out=out1);
+    Or(a=out1, b=out2, c=data);
+    RAM16K(in=in, load=data, address=address[0..13], out=out3);
+
     //Screen
-    Screen(in=, load=, address=, out=);
+    Screen(in=in, load=screen, address=address[0..12], out=outScreen);
+
     //keyboard
-    Keyboard(out=);
+    Keyboard(out=outKeyboard);
+
+    Mux4Way(a=out3, b=out3, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);
 }
