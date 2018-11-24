@@ -41,64 +41,25 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
 
-        //out1= output of first mux16, goes to Aregister
-        //out2= output of a register
-        //out3= ALU input from D or A/M
-        //out4= D-Register output
-        //out5=ALU output
-        //out6=A/D register based on C-instruction
-
-
     PARTS:
-    //decode instruction
-   	Not(in=instruction[15], out=notInstruc); //Opposite of A instruction is used as control
-   
-    //instruction
-    Mux16(a=instruction, b=out5, sel=instruction[15], out=out1); 
+     Not(in=instruction[15], out=loadA); //if loadA=0 do not set A-register because it is a C-instruction, if loadA=1 set A-register to new value
 
-    //Output goes to A register, uses a load 
-    Or(a=notInstruc, b=instruction[5], out=outInstruc); //c-instruction and destination goes to A-register
-    Aregister(in=out1, load=outInstruc, out=out2 out[0..14]=addressM); 
+     Mux16(a=instruction, b=ALUoutput, sel=LOAD, out=OUT1);
+     //If LOAD=1, it chooses the ALUoutput to be saved in the A-register
+     //If LOAD=0, it chooses the instruction to work with
 
-    //inM
-    //picks between A register or D register
-    And(a=instruction[15], b=instruction[12], out=out6);
-    Mux16(a=out1, b=inM, sel=out6, out=out3);
-    //out3 is either A D or M
+     ARegister(in=OUT1, load=loadA, out=ARegister); 
+     //sets A-register dependent on presence of c-instruction
 
-    //D register
-   	// uses a load
-    And(a=intsruction[15], b=instruction[4], out=outD);
-    DRegister(in=out5, load=outD, out=out4);
+     Mux16(a=ARegister, b=inM, sel=instruction[12], out=selectAM);
+     //picks between A value and M value 
+
+     DRegister(in=ALUoutput, load=LOAD, out=DRegister);
+     //sets DRegister dependent on load
+
+     ALU(x=DResgiter, y=ARegister, zx=, nx=, zy=, ny=, f=, no=, out=, zr=, ng=);
+     //set ALU
 
 
-     //ALU
-    ALU (x=out4 , y=out3,
-    zx=instruction[11],
-    nx=instruction[10],
-    zy=instruction[9],
-    ny=instruction[8],
-    f=instruction[7],
-    no=instruction[6],
-    out=out5, out=outM,
-    zr=outZR,
-    ng=outNG);
-
-    //writeM
-    And(a=instruction[15], b=instruction[3], out=writeM);
-
-    //reset
-   	Not(in=outZR, out=notZR);
-   	Not(in=outNG, out=pos);
-
-   	And(a=instruction[15], b=instruction[0], out=JGT);
-   	And(a=pos, b=notZR, out=posNotZR);
-   	//And()
-
-   	And(a=instruction[15], b=instruction[1], out=JEQ);
-   	And(a=JEQ, b=outZR, out=out7);
-
-   	//Or(a=);
-   	//Or();
-    PC (in=out2 ,load= ,inc=true,reset=reset ,out[0..14=pc); 
+    
 }
