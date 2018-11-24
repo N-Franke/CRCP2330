@@ -42,14 +42,18 @@ CHIP CPU {
 
 
     PARTS:
-     Not(in=instruction[15], out=loadA); //if loadA=0 do not set A-register because it is a C-instruction, if loadA=1 set A-register to new value
+     Not(in=instruction[15], out=loadA); //if loadA=0 do not set A-register because it is a C-instruction,
+                                        // if loadA=1 set A-register to new value
 
-     Mux16(a=instruction, b=ALUoutput, sel=LOAD, out=OUT1);
-     //If LOAD=1, it chooses the ALUoutput to be saved in the A-register
-     //If LOAD=0, it chooses the instruction to work with
+     Mux16(a=ALUoutput, b=instruction, sel=loadA, out=out1);
+     //If LOAD=0, it chooses the ALUoutput to be saved in the A-register
+     //If LOAD=1, it chooses the instruction to work with
 
-     ARegister(in=OUT1, load=loadA, out=ARegister); 
-     //sets A-register dependent on presence of c-instruction
+     Or(a=loadA, b=instruction[5], out=loadB);
+     //LoadB is based on A-Value and Dest [5]
+     
+     ARegister(in=out1, load=, out=ARegister); 
+    //sets A-register dependent on presence of c-instruction and destination
 
      Mux16(a=ARegister, b=inM, sel=instruction[12], out=selectAM);
      //picks between A value and M value 
@@ -57,8 +61,14 @@ CHIP CPU {
      DRegister(in=ALUoutput, load=LOAD, out=DRegister);
      //sets DRegister dependent on load
 
-     ALU(x=DResgiter, y=ARegister, zx=, nx=, zy=, ny=, f=, no=, out=, zr=, ng=);
-     //set ALU
+     ALU(x=DResgiter, y=selectAM,
+      zx=instruction[11], nx=instruction[10],
+       zy=instruction[9], ny=instruction[8], 
+       f=instruction[7], no=instruction[6],
+        out=ALUoutput, out=outM, 
+        zr=ALUout1, ng=ALUout2);
+     //calculates between values of Dreg and Areg, outputs outM, zero, negative
+
 
 
     
