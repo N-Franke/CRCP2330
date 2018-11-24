@@ -86,9 +86,17 @@ CHIP CPU {
      Not(in=ZeroOrNeg, out=positive); //value is positive but not zero/negative
      And(a=positive, b=instruction[0], out=JGT);
      //if positive=1, instruction[0]=1, JGT=1
-     
 
-     PC(in=ARegister, load=, inc=true, reset=, out=pc);
+     Or(a=JEQ, b=JLT, out=JLE);
+     //can be either less than or equal to zero, JLE=1
+     Or(a=JLE, b=JGT, out=JumpToA);
+     //if conditions are met, load PC and jump to A
+     And(a=instruction[15], b=JumpToA, out=PCload);
+     //Only jump if it is a C-instruction and Jump conditions are met
+     Not(in=PCload, out=PCinc);
+     //Only increase if not being loaded with a jump
+
+     PC(in=ARegister, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);
 
 
     
