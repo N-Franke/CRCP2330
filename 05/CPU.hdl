@@ -97,7 +97,5 @@ CHIP CPU {
      //Only increase if not being loaded with a jump
 
      PC(in=ARegister, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);
-
-
     
 }

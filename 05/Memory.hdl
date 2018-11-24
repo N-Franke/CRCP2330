@@ -27,18 +27,26 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    //tell the memory where the in value will go
+    //Based on the farthest left 2 values of address,
     DMux4Way(in=load, sel=address[13..14], a=out1, b=out2, c=screen, d=keyboard);
+    //00 out goes to RAM
+    //01 out goes to RAM
+    //10 out goes to screen
+    //11 out goes to keyboard
 
     //RAM
-    Or(a=out1, b=out2, c=data);
-    RAM16K(in=in, load=data, address=address[0..13], out=out3);
+    Or(a=out1, b=out2, c=switch);
+    RAM16K(in=in, load=switch, address=address[0..13], out=outRAM);
+    //address only takes 14 bit number because the first 2 values are automatically 00-01
 
     //Screen
     Screen(in=in, load=screen, address=address[0..12], out=outScreen);
+    //screen only takes 13 bit number because the first 3 values are automatically 100-101
 
     //keyboard
-    Keyboard(out=outKeyboard);
+    Keyboard(out=outKeyboard
+    //Keyboard only outputs one value
 
-    Mux4Way(a=out3, b=out3, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);
+    Mux4Way16(a=outRAM, b=outRAM, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);
+
 }
