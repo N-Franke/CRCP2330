@@ -51,24 +51,32 @@ CHIP CPU {
 
      Or(a=loadA, b=instruction[5], out=loadB);
      //LoadB is based on A-Value and Dest [5]
-     
-     ARegister(in=out1, load=, out=ARegister); 
+
+     ARegister(in=out1, load=, out=ARegister, out[0..14]=addressM); 
     //sets A-register dependent on presence of c-instruction and destination
+    //when A Register has been set, you can also set the Address of M=RAM[A]
 
      Mux16(a=ARegister, b=inM, sel=instruction[12], out=selectAM);
      //picks between A value and M value 
 
-     DRegister(in=ALUoutput, load=LOAD, out=DRegister);
-     //sets DRegister dependent on load
+     And(a=instruction[15], b=instruction[4], out=loadC);
+     DRegister(in=ALUoutput, load=loadC, out=DRegister);
+     //sets DRegister dependent on C-Instruction and Destination
+
+     //write to M
+     Or(a=instruction[5], b=instruction[3], out=switch);
+     And(a=instruction[15], b=switch, out=writeM);
 
      ALU(x=DResgiter, y=selectAM,
       zx=instruction[11], nx=instruction[10],
-       zy=instruction[9], ny=instruction[8], 
-       f=instruction[7], no=instruction[6],
-        out=ALUoutput, out=outM, 
-        zr=ALUout1, ng=ALUout2);
+      zy=instruction[9], ny=instruction[8], 
+      f=instruction[7], no=instruction[6],
+      out=ALUoutput, out=outM, 
+      zr=ALUout1, ng=ALUout2);
      //calculates between values of Dreg and Areg, outputs outM, zero, negative
 
+     //PROGRAM COUNTER
+     
 
 
     
