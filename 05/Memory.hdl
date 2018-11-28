@@ -35,7 +35,7 @@ CHIP Memory {
     //11 out goes to keyboard
 
     //RAM
-    Or(a=out1, b=out2, c=switch);
+    Or(a=out1, b=out2, out=switch);
     RAM16K(in=in, load=switch, address=address[0..13], out=outRAM);
     //address only takes 14 bit number because the first 2 values are automatically 00-01
 
@@ -44,7 +44,7 @@ CHIP Memory {
     //screen only takes 13 bit number because the first 3 values are automatically 100-101
 
     //keyboard
-    Keyboard(out=outKeyboard
+    Keyboard(out=outKeyboard);
     //Keyboard only outputs one value
 
     Mux4Way16(a=outRAM, b=outRAM, c=outScreen, d=outKeyboard, sel=address[13..14], out=out);

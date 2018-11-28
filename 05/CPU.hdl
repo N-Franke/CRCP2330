@@ -49,25 +49,27 @@ CHIP CPU {
      //If LOAD=0, it chooses the ALUoutput to be saved in the A-register
      //If LOAD=1, it chooses the instruction to work with
 
-     And(a=instruction[15], b=instruction[5], out=loadB);
-     //LoadB is based on A-Value and Dest [5]
-
-     ARegister(in=out1, load=loadB, out=ARegister, out[0..14]=addressM); 
+     Or(a=loadA, b=instruction[5], out=loadB);
+     //LoadB can only be 1 if A-instruction or Dest [5] == 1 (C-instruction)
+     ARegister(in=out1, load=loadB, out=outA, out[0..14]=addressM); 
     //sets A-register dependent on presence of c-instruction and destination
     //when A Register has been set, you can also set the Address of M=RAM[A]
 
-     Mux16(a=ARegister, b=inM, sel=instruction[12], out=selectAM);
-     //picks between A value and M value 
+     And(a=instruction[15], b=instruction[12], out=selectAM);
+     //if A, selectAM=0, if M, selectAM=1
+     Mux16(a=outA, b=inM, sel=selectAM, out=AorM);
+     //picks between A value and M value, 
 
      And(a=instruction[15], b=instruction[4], out=loadC);
-     DRegister(in=ALUoutput, load=loadC, out=DRegister);
-     //sets DRegister dependent on C-Instruction and Destination
+     //[15]==1, [4]==1 to set for D 
+     DRegister(in=ALUoutput, load=loadC, out=outD);
+     //sets DRegister based on ALU output value
 
      //write to M
-     Or(a=instruction[5], b=instruction[3], out=switch);
-     And(a=instruction[15], b=switch, out=writeM);
+     And(a=instruction[15], b=instruction[3], out=writeM);
+     //checks it's a C instruction, sets M 
 
-     ALU(x=DResgiter, y=selectAM,
+     ALU(x=outD, y=AorM,
       zx=instruction[11], nx=instruction[10],
       zy=instruction[9], ny=instruction[8], 
       f=instruction[7], no=instruction[6],
@@ -76,26 +78,25 @@ CHIP CPU {
      //calculates between values of Dreg and Areg, outputs outM, zero, negative
 
      //PROGRAM COUNTER 
-     And(a=zrOut, b=instruction[1], out=JEQ);
-     //if zero=1, instruction[1]=1, JEQ=1
+     //JEQ
+     And(a=instruction[15], b=instruction[1], out=JEQ);
+     //if c-instruction and [1]==1,
 
-     And(a=ngOut, b=instruction[2], out=JLT);
-     //if negative=1, instruction[2]=1, JLT=1
+     //JLT
+     And(a=instruction[15], b=instruction[2], out=JLT);
+     //if c-instruction, instruction[2]=1, JLT=1 (output is less than zero)
 
-     Or(a=zrOut, b=ngOut, out=ZeroOrNeg);
-     Not(in=ZeroOrNeg, out=positive); //value is positive but not zero/negative
-     And(a=positive, b=instruction[0], out=JGT);
-     //if positive=1, instruction[0]=1, JGT=1
+     //JGT
+     And(a=instruction[15], b=instruction[0], out=JGT);
+     //if c-instruction=1, instruction[0]=1, JGT=1
 
-     Or(a=JEQ, b=JLT, out=JLE);
-     //can be either less than or equal to zero, JLE=1
-     Or(a=JLE, b=JGT, out=JumpToA);
-     //if conditions are met, load PC and jump to A
-     And(a=instruction[15], b=JumpToA, out=PCload);
-     //Only jump if it is a C-instruction and Jump conditions are met
-     Not(in=PCload, out=PCinc);
-     //Only increase if not being loaded with a jump
+     And(a=zrOut, b=ngOut, out=positive); //value is positive, greater than zero
+     And(a=JGT, b=positive, out=switch1);  //greater than zero and positive
+     And(a=JLT, b=ngOut, out=switch2); //less than zero and negative
 
-     PC(in=ARegister, load=PCload, inc=PCinc, reset=reset, out[0..14]=pc);
+     Or(a=JEQ, b=switch1, out=jump1); //equal to JGE
+     Or(a=jump1, b=switch2, out=PCload); //equal to JLE
+
+     PC(in=outA, load=PCload, inc=true, reset=reset, out[0..14]=pc);
     
 }
