@@ -78,25 +78,40 @@ CHIP CPU {
      //calculates between values of Dreg and Areg, outputs outM, zero, negative
 
      //PROGRAM COUNTER 
+     Not(in=zrOut, out=nZR);
+     Not(in=ngOut, out=nNG);
+     And(a=nZR, b=nNG, out=posNZR);
+
      //JEQ
-     And(a=instruction[15], b=instruction[1], out=JEQ);
+     And(a=zrOut, b=instruction[1], out=JEQ);
      //if c-instruction and [1]==1,
 
      //JLT
-     And(a=instruction[15], b=instruction[2], out=JLT);
+     And(a=ngOut, b=instruction[2], out=JLT);
      //if c-instruction, instruction[2]=1, JLT=1 (output is less than zero)
 
      //JGT
-     And(a=instruction[15], b=instruction[0], out=JGT);
+     And(a=nNG, b=instruction[0], out=JGT);
      //if c-instruction=1, instruction[0]=1, JGT=1
 
-     And(a=zrOut, b=ngOut, out=positive); //value is positive, greater than zero
-     And(a=JGT, b=positive, out=switch1);  //greater than zero and positive
-     And(a=JLT, b=ngOut, out=switch2); //less than zero and negative
+     //JGE
+     Or(a=JGT, b=JEQ, out=JGE);
+     //value is equal to or greater than zero
 
-     Or(a=JEQ, b=switch1, out=jump1); //equal to JGE
-     Or(a=jump1, b=switch2, out=PCload); //equal to JLE
+     //JLE
+     Or(a=JLT, b=JEQ, out=JLE);
+     //value is less than or equal to zero
 
-     PC(in=outA, load=PCload, inc=true, reset=reset, out[0..14]=pc);
+     //JNE
+     Or(a=JLT, b=JGT, out=JNE);
+     //not equal to zero
+
+     //PCload
+     Or(a=JNE, b=false, out=pcLoad);
+
+     //PCinc
+     Not(in=pcLoad, out=pcInc);
+
+     PC(in=outA, load=pcLoad, inc=pcInc, reset=reset, out[0..14]=pc); 
     
 }
