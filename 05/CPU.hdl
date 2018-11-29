@@ -49,25 +49,23 @@ CHIP CPU {
      //If LOAD=0, it chooses the ALUoutput to be saved in the A-register
      //If LOAD=1, it chooses the instruction to work with
 
-     Or(a=loadA, b=instruction[5], out=loadB);
-     //LoadB can only be 1 if A-instruction or Dest [5] == 1 (C-instruction)
-     ARegister(in=out1, load=loadB, out=outA, out[0..14]=addressM); 
+    //if it's an A-instruction and A should be saved
+    Or(a=loadA, b=instruction[5], out=AregLoad);
+
+     ARegister(in=out1, load=AregLoad, out=outA, out[0..14]=addressM); 
     //sets A-register dependent on presence of c-instruction and destination
     //when A Register has been set, you can also set the Address of M=RAM[A]
 
-     And(a=instruction[15], b=instruction[12], out=selectAM);
-     //if A, selectAM=0, if M, selectAM=1
-     Mux16(a=outA, b=inM, sel=selectAM, out=AorM);
+  //   And(a=instruction[12], b=instruction[3], out=selectAM, out=writeM);
+     //if compA=1, and D3=1, M register is selected
+     //if it is a one, writeM
+     Mux16(a=outA, b=inM, sel=instruction[12], out=AorM);
      //picks between A value and M value, 
 
      And(a=instruction[15], b=instruction[4], out=loadC);
-     //[15]==1, [4]==1 to set for D 
+     //C-instruction, [4]==1 to set for D 
      DRegister(in=ALUoutput, load=loadC, out=outD);
      //sets DRegister based on ALU output value
-
-     //write to M
-     And(a=instruction[15], b=instruction[3], out=writeM);
-     //checks it's a C instruction, sets M 
 
      ALU(x=outD, y=AorM,
       zx=instruction[11], nx=instruction[10],
@@ -113,5 +111,5 @@ CHIP CPU {
      Not(in=pcLoad, out=pcInc);
 
      PC(in=outA, load=pcLoad, inc=pcInc, reset=reset, out[0..14]=pc); 
-    
+    //may need to add out[15]=false
 }
