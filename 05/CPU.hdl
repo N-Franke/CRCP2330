@@ -78,36 +78,39 @@ CHIP CPU {
      //calculates between values of Dreg and Areg, outputs outM, zero, negative
 
      //PROGRAM COUNTER 
-     Not(in=zrOut, out=nZR);
-     Not(in=ngOut, out=nNG);
-     And(a=nZR, b=nNG, out=posNZR);
+     //DMux 
+     DMux8Way(in=instruction[15], sel=instruction[0..2], a=NOJ, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
 
-     //JEQ
-     And(a=zrOut, b=instruction[1], out=JEQ);
-     //if c-instruction and [1]==1,
-
-     //JLT
-     And(a=ngOut, b=instruction[2], out=JLT);
-     //if c-instruction, instruction[2]=1, JLT=1 (output is less than zero)
+     //NOJ
+     //will set the pcInc
 
      //JGT
-     And(a=nNG, b=instruction[0], out=JGT);
-     //if c-instruction=1, instruction[0]=1, JGT=1
+     And(a=JGT, b=instruction[0], out=outJGT);
+
+     //JEQ
+     And(a=JEQ, b=instruction[1], out=outJEQ);
 
      //JGE
-     Or(a=JGT, b=JEQ, out=JGE);
-     //value is equal to or greater than zero
+     Or(a=JGT, b=JEQ, out=jge);
+     And(a=JGE, b=jge, out=outJGE);
 
-     //JLE
-     Or(a=JLT, b=JEQ, out=JLE);
-     //value is less than or equal to zero
+     //JLT
+     And(a=JLT, b=instruction[2], out=outJLT);
 
      //JNE
-     Or(a=JLT, b=JGT, out=JNE);
-     //not equal to zero
+     Or(a=JLT, b=JGT, out=jne);
+     And(a=JNE, b=jne, out=outJNE);
 
-     //PCload
-     Or(a=JNE, b=false, out=pcLoad);
+     //JLE
+     Or(a=JLT, b=JEQ, out=jle);
+     And(a=JLE, b=jle, out=outJLE);
+
+     //Combine
+     Or(a=outJGE, b=outJLE, out=outComb);
+     Or(a=outComb, b=outJLE, out=outFinal);
+
+     //JMP
+     Or(a=JMP, b=outFinal, out=pcLoad);
 
      //PCinc
      Not(in=pcLoad, out=pcInc);
