@@ -56,11 +56,10 @@ CHIP CPU {
     //sets A-register dependent on presence of c-instruction and destination
     //when A Register has been set, you can also set the Address of M=RAM[A]
 
-  //   And(a=instruction[12], b=instruction[3], out=selectAM, out=writeM);
      //if compA=1, and D3=1, M register is selected
      //if it is a one, writeM
-     And(a=instruction[15], b=instruction[12], out=possible);
-     And(a=possible, b=instruction[3], out=sel);  //all of the above will set to M if all equal 1
+     And(a=instruction[15], b=instruction[3], out=possible);
+     Or(a=possible, b=instruction[12], out=sel);  
      Mux16(a=outA, b=inM, sel=sel, out=AorM);
      //picks between A value and M value, 
 
@@ -78,24 +77,24 @@ CHIP CPU {
      //calculates between values of Dreg and Areg, outputs outM, zero, negative
 
      //PROGRAM COUNTER 
-     //DMux 
      DMux8Way(in=instruction[15], sel=instruction[0..2], a=NOJ, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
 
-     //NOJ
-     //will set the pcInc
+     Not(in=zrOut, out=nZR);
+     Not(in=ngOut, out=nNG);
+     And(a=nZR, b=nNG, out=posNZR);
 
      //JGT
-     And(a=JGT, b=instruction[0], out=outJGT);
+     And(a=JGT, b=posNZR, out=outJGT);
 
      //JEQ
-     And(a=JEQ, b=instruction[1], out=outJEQ);
+     And(a=JEQ, b=zrOut, out=outJEQ);
 
      //JGE
      Or(a=JGT, b=JEQ, out=jge);
      And(a=JGE, b=jge, out=outJGE);
 
      //JLT
-     And(a=JLT, b=instruction[2], out=outJLT);
+     And(a=JLT, b=ngOut, out=outJLT);
 
      //JNE
      Or(a=JLT, b=JGT, out=jne);
@@ -114,6 +113,7 @@ CHIP CPU {
 
      //PCinc
      Not(in=pcLoad, out=pcInc);
+  //   And(a=noJump, b=NOJ, out=pcInc);
 
      PC(in=outA, load=pcLoad, inc=pcInc, reset=reset, out[0..14]=pc); 
     //may need to add out[15]=false
