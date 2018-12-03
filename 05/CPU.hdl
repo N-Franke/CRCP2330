@@ -90,18 +90,18 @@ CHIP CPU {
      And(a=JEQ, b=zrOut, out=outJEQ);
 
      //JGE
-     Or(a=JGT, b=JEQ, out=jge);
+     Or(a=outJGT, b=outJEQ, out=jge);
      And(a=JGE, b=jge, out=outJGE);
 
      //JLT
      And(a=JLT, b=ngOut, out=outJLT);
 
      //JNE
-     Or(a=JLT, b=JGT, out=jne);
+     Or(a=outJLT, b=outJGT, out=jne);
      And(a=JNE, b=jne, out=outJNE);
 
      //JLE
-     Or(a=JLT, b=JEQ, out=jle);
+     Or(a=outJLT, b=outJEQ, out=jle);
      And(a=JLE, b=jle, out=outJLE);
 
      //Combine
