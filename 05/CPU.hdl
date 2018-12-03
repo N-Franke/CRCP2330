@@ -59,7 +59,9 @@ CHIP CPU {
   //   And(a=instruction[12], b=instruction[3], out=selectAM, out=writeM);
      //if compA=1, and D3=1, M register is selected
      //if it is a one, writeM
-     Mux16(a=outA, b=inM, sel=instruction[12], out=AorM);
+     And(a=instruction[15], b=instruction[12], out=possible);
+     And(a=possible, b=instruction[3], out=sel);  //all of the above will set to M if all equal 1
+     Mux16(a=outA, b=inM, sel=sel, out=AorM);
      //picks between A value and M value, 
 
      And(a=instruction[15], b=instruction[4], out=loadC);
