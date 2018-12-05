@@ -59,7 +59,7 @@ CHIP CPU {
      //if compA=1, and D3=1, M register is selected
      //if it is a one, writeM
      And(a=instruction[15], b=instruction[3], out=possible, out=writeM);
-     And(a=possible, b=instruction[12], out=sel);  
+     Or(a=possible, b=instruction[12], out=sel);  
      Mux16(a=outA, b=inM, sel=sel, out=AorM);
      //picks between A value and M value, 
 
@@ -84,24 +84,24 @@ CHIP CPU {
      And(a=nZR, b=nNG, out=posNZR);
 
      //JGT
-     And(a=JGT, b=posNZR, out=outJGT);
+     And(a=JGT, b=nNG, out=outJGT);
 
      //JEQ
      And(a=JEQ, b=zrOut, out=outJEQ);
 
      //JGE
-     Or(a=outJGT, b=outJEQ, out=outBlue);
+     Or(a=zrOut, b=nNG, out=outBlue);
      And(a=JGE, b=outBlue, out=outJGE);
 
      //JLT
      And(a=JLT, b=ngOut, out=outJLT);
 
      //JNE
-     Or(a=outJLT, b=outJGT, out=outGreen);
+     Or(a=ngOut, b=nNG, out=outGreen);
      And(a=JNE, b=outGreen, out=outJNE);
 
      //JLE
-     Or(a=outJLT, b=outJEQ, out=outRed);
+     Or(a=zrOut, b=ngOut, out=outRed);
      And(a=JLE, b=outRed, out=outJLE);
 
      //Combine
