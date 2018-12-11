@@ -1,0 +1,10 @@
+class Main {
+	function void main(){
+	var Bounce ball;
+	let ball = new Bounce.new();
+	do ball.draw();
+	do ball.dispose();
+	return;
+
+	}
+}

@@ -1,0 +1,86 @@
+/**define main function*/
+class Bounce{
+	field int xPos, yPos; /**private values */
+	field int xSpeed, ySpeed; 
+	field int xDirection, yDirection;
+	static int radius; /**constant variable radius*/
+
+	//static width and height of screen?
+
+	/**constructor*/
+	constructor Bounce new (int x, int y, int spdX, int spdY, int dirX, intdirY, int rad){
+	let xpos=x; let ypos=y; /**set private values*/
+	let xSpeed = spdX; let ySpeed = spdY;
+	let xDirection = dirX; let yDirection = dirY;
+	let radius = rad;  /**set radius =40*/
+
+	do draw(); 		/**draw function*/
+	return this;
+	}
+
+	/**Disposes the Bounce*/
+	method void dispose(){
+		do Memory.deAlloc(this);
+		return;
+	}
+
+	/**Draw the cirlce to screen */
+	method void draw(){
+		do Screen.setColor(true);
+		
+		do Bounce.updateX(int xPos, int xSpeed, int xDirection);
+		do Bounce.updateY(int yPos, int ySpeed, int yDirection);
+		do Screen.drawCircle(int xPos, int yPos, int radius);
+	}
+
+	/**Erase circle from screen*/
+	method void erase(){
+		do Screen.setColor(false);
+		do Screen.drawCircle(int xPos, int yPos, int radius);
+	}
+
+	/**Update X-Position Funciton*/
+	function int updateX(int xPos, int xSpeed, int xDirection) {
+		var int val1;
+		let val 1= multiply(xSpeed, xDirection);
+		let xPos = xPos + val1;
+		return xPos;
+	}
+
+	/**Update Y-Position Funciton*/
+	function int updateY(int yPos, int ySpeed, int yDirection) {
+		var int val2;
+		let val 2= multiply(ySpeed, yDirection);
+		let yPos = yPos + val2;
+		return yPos;
+	}
+
+	/**Boundaries X comparison*/
+	//function int compareX(int xPos, WIDTH, radius, int xDirection){
+	//if ((xPos > (WIDTH -radius)) OR (xPos < radius)){
+	//	xDirection = xDirection * -1;
+	//	}
+	//}
+
+	/**Boundaries Y comparison*/
+	//function int compareY(int yPos, HEIGHT, radius, int yDirection){
+	//if ((yPos > (WIDTH -radius)) OR (yPos < radius)){
+	//	yDirection = yDirection * -1;
+	//	}
+	//}
+}
+
+
+
+
+
+//main function operations
+//set origin of square
+
+//update position function
+
+//if statement xpos
+
+//if statement ypos
+
+//draw circle
