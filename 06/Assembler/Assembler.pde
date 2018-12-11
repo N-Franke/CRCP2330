@@ -1,12 +1,13 @@
 //assember
+
+PrintWriter outputFile;
  void setup(){
+   //create  a new file in the sketch directory
+   outputFile = createWriter("output.txt");
  }
  
  void draw(){
    read();
-  // opCode();
-  // combine();
-  // output();
  }
 
 
@@ -17,6 +18,7 @@ String[] input = loadStrings("Test.txt"); //file goes here
    char[] set = new char[input[i].length()];
    set=convert(input[i]);
    opCode(instruction(set), set);
+   complete(combine(instruction(set), set));
  }
 }
 
@@ -34,23 +36,45 @@ char[] convert(String perLine){
 boolean instruction(char[] words){
     boolean aInstruction;
     if(words[0] == '@'){
-      aInstruction = true;
+      aInstruction = true; //A-Instruction or  variable
+    }
+    else if(words[0]== '('){
+      aInstruction = true; //Label
     }
     else{
-      aInstruction = false; 
+      aInstruction = false; //C-Instruction
     }
     return aInstruction;
 }  
 
+//determines an A or an M to compute
+String mnemonic(boolean truth, char[] words){
+  String output;
+  for(int i =0; i <words.length; i++){
+    if( (truth == false) && (words[i] == 'A')){
+      output = "0";
+    }
+    else if((truth ==false) && (words[i] == 'M')){
+      output = "1";
+    }
+  }
+  return output;
+}
+
 void opCode(boolean truth, char[] words){
   String output;
-  int Translation;
+  int translation;
    //A-Instructions
   if(truth == true){
     //(symbol)
     for(int i=1; i<words.length; i++){
       String variables = words[i];
+      if(words[0]== '('){
+        //address of label goes here 
+        //to be returned in  binary
+      } 
     }
+    //predefined variable
     if(variables == "R0"){
       translation = 0;
     }
@@ -120,54 +144,60 @@ void opCode(boolean truth, char[] words){
     if(variables =="THAT"){
       translation = 4;
     }
-    output=binary(translation);
-   }
+    else {
+     // int[] valHolder = new int[]
+      //translation = valHolder + 16;
+      //put the new variable in an array to hold a place and value
+      //this value can be updated later on in the program
+      //must start at value 16 and go up
+      //if it appears for the first time, create a new value
+      //otherwise use the old value
+       output=binary(translation);
+      }
+  }
     //else if (decimal constant)
-    else  if{
+    else{
     //start at 1, because @=0
     for (int i=1; i < words.length; i++){
     int sum = 0;
     sum = int(words[i]) + sum;
     output=binary(sum);  //converts integer to binary
    // println(output);
+      }
     }
-  }
-    else if{
-      //Variable declarations go here starting with 16
-      //if it appears for the first time, create a new value
-      //otherwise use the old value
-    }
+ 
 //C-Instructions
   if(truth == false){
     //dest = comp ; jump
     //use table to figure out the binary
   for(int i =0; i<words.length; i++){
     if(words[i] == '='){
-      //CONVERT CHAR [] TO STRINGS
-      int value = words[i-1]; //length of char before =
-      char[] dest = new char[value];
-      dest[i]=words[value];
-      tableDest(dest);
-      int value1 = words[words.length-i]; //remaining string
-      char[] comp1 = new char[value1];
-      comp1[i]=words[value1];
-      tableComp(comp);
+      String dest;
+      String comp;
+      for(int j=0; j<i; j++){
+        dest = dest + words[j];
       }
+      tableDest(dest);  //dest function
+      for(int k=i+1; k<(words.length-I); k++){
+        comp = comp + words[k];
+      }
+      tableComp(comp);  //comp function
+    }
     if(words[i] == ';'){
-      int value2 = words[words.length-i]; //length of char after ; before it ends
-      char[] jump = new char[value2];
-      jump[i]=words[value2];
-      //tableJump(jump);
-      int value3 =words[i-1];//length of char before ;
-      char[] comp2 = new char[value3];
-      comp2[i]=words[value3];
+      String jump;
+      String comp;
+      for(int j=i+1; j<(words.length -i); j++){
+        jump = jump + words[j];
+      }
+      tableJump(jump);
+      for(int k=0; k<i; k++){
+        comp = comp + words[k];
+        }
       tableComp(comp);
       }
     }
-    output = tableDest() + tableJump() + tableComp();
+    output = tableComp() + tableDest() + tableJump();
   }
-  
-  //OR it's a label
   
 } //end of function
 
@@ -250,15 +280,6 @@ String tableComp(String comp){
     output="010101";
     return output;
   }
-  //to determine [12]
-  for(int i =0; i<comp.length; i++){
-    if(comp[i] == "A"){
-      [12] = 0;
-    }
-    else {
-      [12] =1;
-    }
-  }
 }
 
 //Destination Bit passes in a string, to create a string
@@ -324,27 +345,30 @@ String tableJump(String jump){
 
 //combine the codes into a single machine language command
 //combine the translted binary into one number
-void combine(boolean truth, char[] words){
+String combine(boolean truth, char[] words){
   String output;
   //A instruction
   //combine a 0 with a 15 bit string from opCode()
   if(truth ==true){
-   opCode(); //15 bit binary
-   output="0" + opcode();
+   output= "0" + opCode(truth, words);
    //will return a 16 bit binary a-instruction
   }
   
   //C instruction
   //combine 111 with the strings produced from tables
-  //also need to set [12] as an A or M 
   if(truth ==false){
-    opCode();
-    output="111" + [12] + opCode();
+    //opCode();
+    output= "111" + mnemonic(truth, words) + opCode(truth, words);
+  }
+  return output;
 }
-
 
 //output this machine language command
 //print out this combined binary number
 //depends on file format
-void output(){
+void complete(String result){
+  outputFile.println(result);
+  outputFile.flush();  //writes remaining data to file
+  outputFile.close();  //finished file
+  exit();  //stops the program
 }
